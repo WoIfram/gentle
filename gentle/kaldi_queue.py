@@ -1,9 +1,11 @@
-from Queue import Queue
 from gentle import standard_kaldi
+from queue import Queue
+
 
 def build(resources, nthreads=4, hclg_path=None):
 
-    if hclg_path is None: hclg_path = resources.full_hclg_path
+    if hclg_path is None:
+        hclg_path = resources.full_hclg_path
 
     kaldi_queue = Queue()
     for i in range(nthreads):
