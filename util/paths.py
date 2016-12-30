@@ -1,10 +1,8 @@
 import os
-import glob
-import logging
-import shutil
 import sys
 
 ENV_VAR = 'GENTLE_RESOURCES_ROOT'
+
 
 class SourceResolver:
     def __init__(self):
@@ -24,6 +22,7 @@ class SourceResolver:
     def get_datadir(self, name):
         return self.get_resource(name)
 
+
 class PyinstallResolver:
     def __init__(self):
         self.root = os.path.abspath(os.path.join(getattr(sys, '_MEIPASS', ''), os.pardir, 'Resources'))
@@ -32,22 +31,26 @@ class PyinstallResolver:
         return os.path.join(self.root, name)
 
     def get_resource(self, name):
-        rpath = os.path.join(self.root, path)
+        rpath = os.path.join(self.root, name)
         if os.path.exists(rpath):
             return rpath
         else:
-            return get_datadir(path) # DMG may be read-only; fall-back to datadir (ie. so language models can be added)
+            return get_datadir(name)  # DMG may be read-only; fall-back to datadir (ie. so language models can be added)
 
-    def get_datadir(self, path):
+    @staticmethod
+    def get_datadir():
         return os.path.join(os.environ['HOME'], '.gentle')
 
 RESOLVER = PyinstallResolver() if hasattr(sys, "frozen") else SourceResolver()
 
+
 def get_binary(name):
     return RESOLVER.get_binary(name)
 
+
 def get_resource(path):
     return RESOLVER.get_resource(path)
+
 
 def get_datadir(path):
     return RESOLVER.get_datadir(path)
