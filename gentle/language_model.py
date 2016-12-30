@@ -7,8 +7,8 @@ import sys
 import tempfile
 
 from util.paths import get_binary
-from metasentence import MetaSentence
-from resources import Resources
+from .metasentence import MetaSentence
+from .resources import Resources
 
 MKGRAPH_PATH = get_binary("ext/mkgraph")
 
@@ -78,13 +78,13 @@ def make_bigram_lm_fst(word_sequences, **kwargs):
 
         successors = bigrams[from_word]
         if len(successors) > 0:
-            weight = -math.log(1.0 / len(successors))
+            weight = math.log(len(successors))
         else:
             weight = 0
 
         for to_word in sorted(successors):
             to_id = get_node_id(to_word)
-            output += '%d    %d    %s    %s    %f' % (from_id, to_id, to_word, to_word, weight)
+            output += '%d    %d    %s    %s    %f' % (from_id, to_id, from_word, to_word, weight)
             output += "\n"
 
     output += "%d    0\n" % (len(node_ids))
@@ -104,7 +104,7 @@ def make_bigram_language_model(kaldi_seq, proto_langdir, **kwargs):
     # Generate a textual FST
     txt_fst = make_bigram_lm_fst(kaldi_seq, **kwargs)
     txt_fst_file = tempfile.NamedTemporaryFile(delete=False)
-    txt_fst_file.write(txt_fst)
+    txt_fst_file.write(txt_fst.encode())
     txt_fst_file.close()
 
     hclg_filename = tempfile.mktemp(suffix='_HCLG.fst')
@@ -115,7 +115,7 @@ def make_bigram_language_model(kaldi_seq, proto_langdir, **kwargs):
                         txt_fst_file.name,
                         hclg_filename],
                         stderr=devnull)
-    except Exception, e:
+    except Exception as e:
         try:
             os.unlink(hclg_filename)
         except:
