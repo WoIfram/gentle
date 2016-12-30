@@ -1,5 +1,7 @@
 # coding=utf-8
+from __future__ import unicode_literals
 import re
+import sys
 
 def load_vocabulary(words_file):
     '''Load vocabulary words from an OpenFST SymbolTable formatted text file'''
@@ -27,7 +29,7 @@ class MetaSentence:
     def __init__(self, sentence, vocab):
         self.raw_sentence = sentence
 
-        if type(sentence) != unicode:
+        if type(sentence) != (unicode if sys.version[0] == '2' else str):
             self.raw_sentence = sentence.decode('utf-8')
         self.vocab = vocab
 
@@ -35,9 +37,9 @@ class MetaSentence:
 
     def _tokenize(self):
         self._seq = []
-        for m in re.finditer(ur'(\w|\’\w|\'\w)+', self.raw_sentence, re.UNICODE):
+        for m in re.finditer(r'(\w|\’\w|\'\w)+', self.raw_sentence, re.UNICODE):
             start, end = m.span()
-            word = m.group().encode('utf-8')
+            word = m.group()
             token = kaldi_normalize(word, self.vocab)
             self._seq.append({
                 "start": start, # as unicode codepoint offset
@@ -52,7 +54,7 @@ class MetaSentence:
         display_sequence = []
         for x in self._seq:
             start, end = x["start"], x["end"]
-            word = self.raw_sentence[start:end].encode('utf-8')
+            word = self.raw_sentence[start:end]
             display_sequence.append(word)
         return display_sequence
 
