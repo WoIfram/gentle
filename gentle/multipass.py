@@ -1,6 +1,5 @@
 import logging
 from multiprocessing.pool import ThreadPool as Pool
-import os
 import wave
 
 from gentle import standard_kaldi
@@ -9,12 +8,13 @@ from gentle import language_model
 from gentle import diff_align
 from gentle import transcription
 
+
 def prepare_multipass(alignment):
     to_realign = []
     last_aligned_word = None
     cur_unaligned_words = []
 
-    for wd_idx,wd in enumerate(alignment):
+    for wd_idx, wd in enumerate(alignment):
         if wd.case == 'not-found-in-audio':
             cur_unaligned_words.append(wd)
         elif wd.case == 'success':
@@ -34,6 +34,7 @@ def prepare_multipass(alignment):
             "words": cur_unaligned_words})
 
     return to_realign
+
     
 def realign(wavfile, alignment, ms, resources, nthreads=4, progress_cb=None):
     to_realign = prepare_multipass(alignment)
@@ -97,7 +98,7 @@ def realign(wavfile, alignment, ms, resources, nthreads=4, progress_cb=None):
     o_words = alignment
     for ret in realignments:
         st_idx = o_words.index(ret["chunk"]["words"][0])
-        end_idx= o_words.index(ret["chunk"]["words"][-1])+1
+        end_idx = o_words.index(ret["chunk"]["words"][-1])+1
         logging.debug('splice in: "%s' % (str(ret["words"])))
         logging.debug('splice out: "%s' % (str(o_words[st_idx:end_idx])))
         o_words = o_words[:st_idx] + ret["words"] + o_words[end_idx:]
