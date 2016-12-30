@@ -1,11 +1,8 @@
 import difflib
 import json
-import os
 import sys
 
 from gentle import metasentence
-from gentle import language_model
-from gentle import standard_kaldi
 from gentle import transcription
 from gentle.resources import Resources
 
@@ -14,13 +11,13 @@ from gentle.resources import Resources
 # programming algorithm used in sclite's alignment process:
 # http://www1.icsi.berkeley.edu/Speech/docs/sctk-1.2/sclite.htm#time-mediated
 def align(alignment, ms, **kwargs):
-    '''Use the diff algorithm to align the raw tokens recognized by Kaldi
+    """Use the diff algorithm to align the raw tokens recognized by Kaldi
     to the words in the transcript (tokenized by MetaSentence).
 
     The output combines information about the timing and alignment of
     correctly-aligned words as well as words that Kaldi failed to recognize
     and extra words not found in the original transcript.
-    '''
+    """
     disfluency = kwargs['disfluency'] if 'disfluency' in kwargs else False
     disfluencies = kwargs['disfluencies'] if 'disfluencies' in kwargs else []
 
@@ -73,18 +70,20 @@ def align(alignment, ms, **kwargs):
                 word=display_word))
     return out
 
+
 def word_diff(a, b):
-    '''Like difflib.SequenceMatcher but it only compares one word
+    """Like difflib.SequenceMatcher but it only compares one word
     at a time. Returns an iterator whose elements are like
-    (operation, index in a, index in b)'''
+    (operation, index in a, index in b)"""
     matcher = difflib.SequenceMatcher(a=a, b=b)
     for op, a_idx, _, b_idx, _ in by_word(matcher.get_opcodes()):
         yield (op, a_idx, b_idx)
 
+
 def by_word(opcodes):
-    '''Take difflib.SequenceMatcher.get_opcodes() output and
+    """Take difflib.SequenceMatcher.get_opcodes() output and
     return an equivalent opcode sequence that only modifies
-    one word at a time'''
+    one word at a time"""
     for op, s1, e1, s2, e2 in opcodes:
         if op == 'delete':
             for i in range(s1, e1):
@@ -104,7 +103,8 @@ def by_word(opcodes):
                 for i in range(s2 + len1, e2):
                     yield ('insert', s1, s1, i, i+1)
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     TEXT_FILE = sys.argv[1]
     JSON_FILE = sys.argv[2]
     OUTPUT_FILE = sys.argv[3]
