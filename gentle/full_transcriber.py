@@ -5,18 +5,18 @@ from gentle import transcription
 from gentle.transcriber import MultiThreadedTranscriber
 from gentle.transcription import Transcription
 
-class FullTranscriber():
 
+class FullTranscriber:
     def __init__(self, resources, nthreads=2):
         self.available = False
-        if nthreads <= 0: return
-        if not os.path.exists(resources.full_hclg_path): return
+        if nthreads <= 0 or not os.path.exists(resources.full_hclg_path):
+            return
 
         queue = kaldi_queue.build(resources, nthreads=nthreads)
         self.mtt = MultiThreadedTranscriber(queue, nthreads=nthreads)
         self.available = True
 
-    def transcribe(self, wavfile, progress_cb=None, logging=None):
+    def transcribe(self, wavfile, progress_cb=None):
         words = self.mtt.transcribe(wavfile, progress_cb=progress_cb)
         return self.make_transcription_alignment(words)
 
