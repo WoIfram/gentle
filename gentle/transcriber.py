@@ -1,10 +1,10 @@
 import math
-import logging
 import wave
 
 from gentle import transcription
-
 from multiprocessing.pool import ThreadPool as Pool
+from queue import Queue
+
 
 class MultiThreadedTranscriber:
     def __init__(self, kaldi_queue, chunk_len=20, overlap_t=2, nthreads=4):
@@ -40,7 +40,6 @@ class MultiThreadedTranscriber:
             if progress_cb is not None:
                 progress_cb({"message": ' '.join([X['word'] for X in ret]),
                              "percent": len(chunks) / float(n_chunks)})
-
 
         pool = Pool(min(n_chunks, self.nthreads))
         pool.map(transcribe_chunk, range(n_chunks))
@@ -85,11 +84,9 @@ class MultiThreadedTranscriber:
         return words
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     # full transcription
-    from Queue import Queue
-    from util import ffmpeg
-    from gentle import standard_kaldi
+    from gentle import standard_kaldi, resampled
 
     import sys
 
@@ -102,8 +99,7 @@ if __name__=='__main__':
 
     trans = MultiThreadedTranscriber(k_queue)
 
-    with gentle.resampled(sys.argv[1]) as filename:
+    with resampled(sys.argv[1]) as filename:
         out = trans.transcribe(filename)
 
     open(sys.argv[2], 'w').write(out.to_json())
-
