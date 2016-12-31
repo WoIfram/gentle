@@ -1,12 +1,12 @@
 import csv
 import io
 import json
-
 from collections import defaultdict
 
-class Word:
 
-    def __init__(self, case=None, startOffset=None, endOffset=None, word=None, alignedWord=None, phones=None, start=None, end=None, duration=None):
+class Word:
+    def __init__(self, case=None, startOffset=None, endOffset=None, word=None, alignedWord=None,
+                 phones=None, start=None, end=None, duration=None):
         self.case = case
         self.startOffset = startOffset
         self.endOffset = endOffset
@@ -22,9 +22,8 @@ class Word:
             elif duration is None:
                 self.duration = end - start
 
-
     def as_dict(self, without=None):
-        return { key:val for key, val in self.__dict__.iteritems() if (val is not None) and (key != without)}
+        return {key: val for key, val in self.__dict__.items() if (val is not None) and (key != without)}
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
@@ -33,7 +32,8 @@ class Word:
         return not self == other
 
     def __repr__(self):
-        return "Word(" + " ".join(sorted([key + "=" + str(val) for key, val in self.as_dict(without="phones").iteritems()])) + ")"
+        return "Word(" +\
+               " ".join(sorted([key + "=" + str(val) for key, val in self.as_dict(without="phones").items()])) + ")"
 
     def shift(self, time=None, offset=None):
         if self.start is not None and time is not None:
@@ -44,15 +44,17 @@ class Word:
             self.startOffset += offset
             self.endOffset += offset
 
-        return self # for easy chaining
+        return self  # for easy chaining
 
     def corresponds(self, other):
-        '''Returns true if self and other refer to the same word, at the same position in the audio (within a small tolerance)'''
-        if self.word != other.word: return False
+        """Returns true if self and other refer to the same word, at the same position
+        in the audio (within a small tolerance)"""
+        if self.word != other.word:
+            return False
         return abs(self.start - other.start) / (self.duration + other.duration) < 0.1
 
-class Transcription:
 
+class Transcription:
     def __init__(self, transcript=None, words=None):
         self.transcript = transcript
         self.words = words
@@ -61,7 +63,7 @@ class Transcription:
         return self.transcript == other.transcript and self.words == other.words
 
     def to_json(self, **kwargs):
-        '''Return a JSON representation of the aligned transcript'''
+        """Return a JSON representation of the aligned transcript"""
         options = {
                 'sort_keys':    True,
                 'indent':       4,
@@ -87,12 +89,12 @@ class Transcription:
 
     @classmethod
     def _from_jsondata(cls, data):
-        return cls(transcript = data['transcript'], words = [Word(**wd) for wd in data['words']])
+        return cls(transcript=data['transcript'], words=[Word(**wd) for wd in data['words']])
 
     def to_csv(self):
-        '''Return a CSV representation of the aligned transcript. Format:
+        """Return a CSV representation of the aligned transcript. Format:
         <word> <token> <start seconds> <end seconds>
-        '''
+        """
         if not self.words:
             return ''
         buf = io.BytesIO()
@@ -100,11 +102,7 @@ class Transcription:
         for X in self.words:
             if X.case not in ("success", "not-found-in-audio"):
                 continue
-            row = [X.word,
-                X.alignedWord,
-                X.start,
-                X.end
-            ]
+            row = [X.word, X.alignedWord, X.start, X.end]
             w.writerow(row)
         return buf.getvalue()
 
@@ -112,9 +110,8 @@ class Transcription:
         counts = defaultdict(int)
         for word in self.words:
             counts[word.case] += 1
-        stats = {}
-        stats['total'] = len(self.words)
-        for key, val in counts.iteritems():
+        stats = {'total': len(self.words)}
+        for key, val in counts.items():
             stats[key] = val
         return stats
 
