@@ -23,7 +23,8 @@ class Kaldi(object):
             cmd,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
-            stderr=devnull)
+            stderr=devnull,
+            bufsize=0)
 
         self._transitions = None
         self._words = None
