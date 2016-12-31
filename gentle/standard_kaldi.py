@@ -1,10 +1,7 @@
-'''Glue code for communicating with standard_kaldi C++ process'''
+"""Glue code for communicating with standard_kaldi C++ process"""
 import json
-import logging
 import os
 import subprocess
-import tempfile
-import wave
 
 from util.paths import get_binary
 from gentle.rpc import RPCProtocol
@@ -12,9 +9,10 @@ from gentle.resources import Resources
 
 EXECUTABLE_PATH = get_binary("ext/standard_kaldi")
 
+
 class Kaldi(object):
-    '''Kaldi spawns a standard_kaldi subprocess and provides a
-    Python wrapper for communicating with it.'''
+    """Kaldi spawns a standard_kaldi subprocess and provides a
+    Python wrapper for communicating with it."""
     def __init__(self, nnet_dir, hclg_path, proto_langdir):
         self.proto_langdir = proto_langdir
         devnull = open(os.devnull, 'w')
@@ -23,7 +21,8 @@ class Kaldi(object):
             cmd,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
-            stderr=devnull)
+            stderr=devnull,
+            bufsize=0)
 
         self._transitions = None
         self._words = None
@@ -32,33 +31,34 @@ class Kaldi(object):
         self.rpc = RPCProtocol(self._subprocess.stdin, self._subprocess.stdout)
 
     def push_chunk(self, buf):
-        '''Push a chunk of audio. Returns true if it worked OK.'''
+        """Push a chunk of audio. Returns true if it worked OK."""
         self.rpc.do('push-chunk', body=buf)
 
     def get_partial(self):
-        '''Dump the provisional (non-word-aligned) transcript'''
+        """Dump the provisional (non-word-aligned) transcript"""
         body, _ = self.rpc.do('get-partial')
         hypothesis = json.loads(body)['hypothesis']
         words = [h['word'] for h in hypothesis]
         return " ".join(words)
 
     def get_final(self):
-        '''Dump the final, phone-aligned transcript'''
+        """Dump the final, phone-aligned transcript"""
         body, _ = self.rpc.do('get-final')
         hypothesis = json.loads(body)['hypothesis']
         return hypothesis
 
     def reset(self):
-        '''Reset the decoder, delete the decoding state'''
+        """Reset the decoder, delete the decoding state"""
         self.rpc.do('reset')
 
     def stop(self):
-        '''Quit the program'''
+        """Quit the program"""
         self.rpc.do('stop')
         self._stopped = True
 
+
 def main():
-    '''Transcribe the given input file using a standard_kaldi C++ subprocess.'''
+    """Transcribe the given input file using a standard_kaldi C++ subprocess."""
     import sys
 
     infile = sys.argv[1]
@@ -79,6 +79,7 @@ def main():
     sys.stderr.write("\n")
     with open(outfile, 'w') as out:
         json.dump(words, out, indent=2)
+
 
 if __name__ == '__main__':
     main()
