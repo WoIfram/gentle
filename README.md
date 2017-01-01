@@ -11,6 +11,15 @@ There are three ways to install Gentle.
 
 3. Download the source code and run ```./install.sh```. Then run ```python serve.py``` to start the server. This works on Mac and Linux.
 
+## Python 3 support
+
+If you are going to use Gentle with Python 3, you should install python3-pip and python3-dev:
+```
+sudo apt-get install python3-pip python3-dev
+```
+And then use the way 3 above to install Gentle.
+
+
 ## Using Gentle
 
 By default, the aligner listens at http://localhost:8765. That page has a graphical interface for transcribing audio, viewing results, and downloading data.

@@ -1,6 +1,7 @@
 import math
 import logging
 import wave
+import sys
 
 from gentle import transcription
 
@@ -87,9 +88,12 @@ class MultiThreadedTranscriber:
 
 if __name__=='__main__':
     # full transcription
-    from Queue import Queue
+    if sys.version[0] == '2':
+        from Queue import Queue
+    else:
+        from queue import Queue
     from util import ffmpeg
-    from gentle import standard_kaldi
+    from gentle import standard_kaldi, resampled
 
     import sys
 
@@ -102,7 +106,7 @@ if __name__=='__main__':
 
     trans = MultiThreadedTranscriber(k_queue)
 
-    with gentle.resampled(sys.argv[1]) as filename:
+    with resampled(sys.argv[1]) as filename:
         out = trans.transcribe(filename)
 
     open(sys.argv[2], 'w').write(out.to_json())

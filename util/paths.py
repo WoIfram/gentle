@@ -32,11 +32,11 @@ class PyinstallResolver:
         return os.path.join(self.root, name)
 
     def get_resource(self, name):
-        rpath = os.path.join(self.root, path)
+        rpath = os.path.join(self.root, name)
         if os.path.exists(rpath):
             return rpath
         else:
-            return get_datadir(path) # DMG may be read-only; fall-back to datadir (ie. so language models can be added)
+            return get_datadir(name) # DMG may be read-only; fall-back to datadir (ie. so language models can be added)
 
     def get_datadir(self, path):
         return os.path.join(os.environ['HOME'], '.gentle')

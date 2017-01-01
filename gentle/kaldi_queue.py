@@ -1,5 +1,10 @@
-from Queue import Queue
+import sys
 from gentle import standard_kaldi
+
+if sys.version[0] == '2':
+    from Queue import Queue
+else:
+    from queue import Queue
 
 def build(resources, nthreads=4, hclg_path=None):
 

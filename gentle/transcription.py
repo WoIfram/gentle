@@ -24,7 +24,7 @@ class Word:
 
 
     def as_dict(self, without=None):
-        return { key:val for key, val in self.__dict__.iteritems() if (val is not None) and (key != without)}
+        return { key:val for key, val in self.__dict__.items() if (val is not None) and (key != without)}
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
@@ -33,7 +33,7 @@ class Word:
         return not self == other
 
     def __repr__(self):
-        return "Word(" + " ".join(sorted([key + "=" + str(val) for key, val in self.as_dict(without="phones").iteritems()])) + ")"
+        return "Word(" + " ".join(sorted([key + "=" + str(val) for key, val in self.as_dict(without="phones").items()])) + ")"
 
     def shift(self, time=None, offset=None):
         if self.start is not None and time is not None:
@@ -114,7 +114,7 @@ class Transcription:
             counts[word.case] += 1
         stats = {}
         stats['total'] = len(self.words)
-        for key, val in counts.iteritems():
+        for key, val in counts.items():
             stats[key] = val
         return stats
 

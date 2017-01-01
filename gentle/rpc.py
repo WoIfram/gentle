@@ -33,14 +33,14 @@ class RPCProtocol(object):
         for arg in args:
             data += ' ' + arg
         data += '\n'
+        data = data.encode()
         if body:
             data += body
 
         try:
-            self.send_pipe.write('%d\n' % len(data))
-            self.send_pipe.write(data)
-            self.send_pipe.write('\n')
-        except IOError, _:
+            output = str(len(data)).encode()+b'\n'+data+b'\n'
+            self.send_pipe.write(output)
+        except IOError:
             raise IOError("Lost connection with standard_kaldi subprocess")
 
     def _read_reply(self):
@@ -55,9 +55,9 @@ class RPCProtocol(object):
             data = self.recv_pipe.read(msg_size)
             self.recv_pipe.read(1) # trailing newline
 
-            status_str, body = data.split('\n', 1)
+            status_str, body = data.decode().split('\n', 1)
             status = int(status_str)
-        except IOError, _:
+        except IOError:
             raise IOError("Lost connection with standard_kaldi subprocess")
 
         if status < 200 or status >= 300:
