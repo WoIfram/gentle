@@ -1,5 +1,6 @@
 import math
 import wave
+import logging
 
 from gentle import transcription
 from multiprocessing.pool import ThreadPool as Pool
